@@ -1,0 +1,537 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>temp.
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>布置作业 - 作业盒子</title>
+    <meta name="description" content="作业盒子网页版登录 百万题库免费用，归纳分组私有题库；自动统计作业结果，智能分析学生学情；下载作业盒子移动端APP，数据同步随时随地查看。作业盒子为北京知识印象科技有限公司开发的教育+互联网产品，让教与学更有趣。" />
+<meta name="Keywords" content="作业盒子 作业盒子电脑版 zuoyehezi作业盒子网页版 作业盒子老师端 互联网教育 在线教育 优质题库 初高中师生互动平台 题盒子 教辅 知识点 试卷 作业 学生详情 作业详情" />
+    <link href="css/public.css?v=2015-09-30" rel="stylesheet" />
+    <link href="css/style.css?v=2015-09-30" rel="stylesheet" />
+    <link href="css/llkt.css?v=2015-09-30" rel="stylesheet" />
+    <link href="css/dialog.css?v=2015-09-30" rel="stylesheet" />
+    <script type="text/javascript" src="js/jquery.js?v=2015-09-30"></script>
+    <!--[if lt IE 10]>
+<script type="text/javascript" src="js/PIE.js"></script>
+<![endif]-->
+    <style type="text/css">
+        .queslist img {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body style="background: #F7F7F7">
+    <div class="w1002 pr" style="padding-bottom: 40px; margin-top: 125px;">
+        <input type="hidden" id="navindex" value="1" />
+        <script type="text/javascript">
+    var tokenCookieName = "knowbox_teacherToken";
+    var infoCookieName = "knowbox_teacherInfo";
+    var classListCookieName = "knowbox_teacherClassList";
+    var jiaocaiCookieName = "knowbox_teacherJiaocai";
+    var assignmentCookieName = "knowbox_teacherAssignment";
+    function ReadCookie1(name) {
+        var mycookie = document.cookie;
+        var start1 = mycookie.indexOf(name + "=");
+        if (start1 == -1)
+            return "";
+        else {
+            start = mycookie.indexOf("=", start1) + 1;
+            var end = mycookie.indexOf(";", start);
+            if (end == -1) {
+                end = mycookie.length;
+            }
+            var value = unescape(mycookie.substring(start, end));
+            return value;
+        }
+    }
+
+    function SetCookie1(name, value, seconds) {
+        // seconds
+        var exp = new Date();
+        exp.setTime(exp.getTime() + seconds * 1000);
+        document.cookie = name + "=" + escape(value) + ";expires=" + exp.toGMTString() + ";path=/";
+    }
+
+    if (ReadCookie1(tokenCookieName) == "") {
+        window.location.href = "Login.aspx";
+    }
+
+    function logout() {
+        var teacherInfo = ReadCookie(infoCookieName);
+        SetCookie1(tokenCookieName, "", -1);
+        SetCookie1(infoCookieName, "", -1);
+        SetCookie1(classListCookieName, "", -1);
+        SetCookie1(jiaocaiCookieName, "", -1);
+        SetCookie1(assignmentCookieName, "", -1);
+        SetCookie1("EDU_COOKIE_TEACHER", "", -1);
+
+        var logoutUrl = ReadCookie("logoutUrl");
+        if (logoutUrl!="") {
+            window.location.href = logoutUrl;
+            SetCookie1("logoutUrl", "", -1);
+        }
+        else {
+            window.location.href = "Login.aspx";
+        }
+    }
+
+    function checkResponse(data) {
+        if (data.code == "20001") {
+            logout();
+        }
+    }
+</script>
+<div class="head">
+    <a href="Assignment.aspx" class="logo"></a>
+        <!--消息-->
+    <!--<div class="ximad">
+        <div class="maed">
+            消息
+        </div>
+    </div>-->
+    <div class="rnadfg">
+        <div class="navdf">
+            <a href="Assignment.aspx">题库</a>
+            <a href="Homework.aspx">作业</a>
+            <a href="Student.aspx">学生</a>
+            <div class="borromd"></div>
+        </div>
+    </div>
+    <a href="../DowloadApp.html" class="downapp">下载App</a>
+    <div class="questionBox" onclick="if(window.location.href.toLowerCase().indexOf('knowbox.cn') != -1) window.open('http://ti.knowbox.cn','_self'); else window.open('http://ti.zuoyehezi.com','_self');">题盒子</div>
+    <div class="rnadfg" style="float:right;margin-left:0px;">
+        <!--个人信息-->
+        <div class="gerenxd">
+            <div class="renwd">
+                <a href="User.aspx"><span class="txd"><img src="images/txd.png" width="28" height="28" id="headPhoto2" /></span><span class="username"></span></a>
+            </div>
+        </div>
+        <div class="txdwnd">
+            <a href="javascript:void(0);" onclick="logout();">退出</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+<!--<div style="position:fixed;right:1px;top:200px;z-index:9999;"><img src="images/zyhzErwm.png" /></div>-->
+<script type="text/javascript">
+    var teacherInfo = ReadCookie1(infoCookieName);
+    if (teacherInfo != "") {
+        $(".username").html(teacherInfo.split('|')[1]);
+        $(".username").attr("title", teacherInfo.split('|')[1]);
+        $("#headPhoto2").attr("src", teacherInfo.split('|')[2]);
+    }
+    if ($("#navindex").val() != "" && $("#navindex").val() != undefined) {
+        $(".choseer").removeClass("choseer");
+        $(".navdf a").eq(Number($("#navindex").val()) - 1).addClass("choseer");
+    }
+</script>
+        <div class="newhead">
+            
+            <ul class="hexdlistd">
+                <li rel="jf">
+                    <p>教辅</p>
+                    <div class="sx"></div>
+                </li>
+                <li rel="zsd">
+                    <p>知识点</p>
+                    <div class="sx"></div>
+                </li>
+                <li rel="sj">
+                    <p>试卷</p>
+                    <div class="sx"></div>
+                </li>
+                <li class="chosed" rel="my">
+                    <p>我的</p>
+                </li>
+            </ul>
+            <a href="javascript:void(0);" class="chutmd">出题框<span class="tuinush">0</span></a>
+            <div class="clear"></div>
+        </div>
+        <div class="pnoquestion hidden">
+                    <img src="images/nodata.png"><br>
+                    暂无试卷
+                </div>
+        <div id="GroupQuestion">
+            <div class="sidebar">
+                <div class="zidygrp">
+                    <span>自定义分组</span>
+                    <span class="naddicon">新建组</span>
+                </div>
+                <ul>
+                </ul>
+            </div>
+            <div class="ques_content">
+                <div class="rid_top">
+                    <h2><span>当前 &gt;</span><span class="currGroupName"></span></h2>
+                    <div class="quesnum">共<span class="currgrpCnt"></span>道</div>
+                    <div class="grpcz">
+                        <div class="editgrp">修改组名</div>
+                        <div class="delgrp">删除该组</div>
+                    </div>
+                </div>
+                <div class="rid_top" style="border-bottom: 0px;">
+                    <div class="dondad">
+                    </div>
+                    <div class="bendnumd">本组出题<span class="I_num2">0</span>道</div>
+                </div>
+                <div class="grpquestioncz">
+                    <div class="selctall"></div>
+                    <ul>
+                        <li class="qc yd">
+                            <p class="drptop">移动</p>
+                            <dl class="dropdown">
+                            </dl>
+                        </li>
+                        <li class="qc">删除</li>
+                    </ul>
+                </div>
+                <div class="questionLst">
+                    <ul>
+                    </ul>
+                </div>
+                <div class="fenye">
+                    <div class="pageyema" style="text-align: right">
+                        <div class="yemafl">
+                            <ul class="pagination">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="loading hidden" style="/* display: none; */">
+                    <img src="images/loading.gif">加载中...
+                </div>
+                <div class="noquestion hidden" style="display: none;">
+                    <img src="images/nodata.png"><br>
+                    暂无题目
+                </div>
+            </div>
+
+        </div>
+        <div id="PaperQuestion" style="display: none">
+            <div class="papersx">
+                <div class="time psx">
+                    <span>时间：</span>
+                    <ul>
+                        <li rel="0" class="current">全部
+                        </li>
+                    </ul>
+                </div>
+                <div class="city psx">
+                    <span>地区：</span>
+                    <ul>
+                        <li rel="0" class="current">全部
+                        </li>
+                    </ul>
+                </div>
+                <div class="type psx">
+                    <span>类型：</span>
+                    <ul>
+                        <li rel="0" class="current">全部
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar pmarg">
+                <ul>
+                </ul>
+            </div>
+            <div class="ques_content pmarg">
+                <div class="rid_top">
+                    <h2><span>当前 &gt;</span><span class="currPaperName"></span></h2>
+                    <div class="quesnum">共<span class="currPaperQCnt"></span>道</div>
+                    <div class="rtopdtxt">
+                        <div class="cur">全部</div>
+                        <div>未出</div>
+                        <div class="nosap">收藏</div>
+                    </div>
+                </div>
+                <div class="rid_top" style="border-bottom: 0px;">
+                    <div class="dondad">
+                    </div>
+                    <div class="bendnumd">本节出题<span class="I_num2">0</span>道</div>
+                </div>
+                <div class="questionLst">
+                    <ul>
+                    </ul>
+                </div>
+                <div class="fenye">
+                    <div class="pageyema" style="text-align: right">
+                        <div class="yemafl">
+                            <ul class="pagination">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="loading hidden" style="/* display: none; */">
+                    <img src="images/loading.gif">加载中...
+                </div>
+                <div class="noquestion hidden" style="display: none;">
+                    <img src="images/nodata.png"><br />
+                    暂无题目
+                </div>
+            </div>
+        </div>
+        <div id="JiaoxFuQuestion" style="display: none">
+            <div class="leftnavd">
+                <ul class="lenvad">
+                    <ol class="J_lenvad_ol">
+                        <p><span>选择教材</span>/<span>课本</span>/<span>教辅</span></p>
+                        <div class="titernav">
+                            <div class="buded"></div>
+                            <div class="liedrd">
+                                <div class="J_jiaocai">
+                                    <div class="title">教材：</div>
+                                    <div class="selcont">
+                                        <span class="curr">全部</span>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="J_keben">
+                                    <div class="title">课本：</div>
+                                    <div class="selcont">
+                                        <span class="curr">全部</span>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                                <div style="height: 1px; background-color: #ccc; margin-top: 10px;"></div>
+                                <div class="J_jiaofu">
+                                </div>
+                            </div>
+
+                        </div>
+                    </ol>
+                </ul>
+            </div>
+            <div class="rdbfd">
+                <!--右侧顶部-->
+                <div class="rid_top">
+                    <h2><span>当前 &gt;</span><span class="currSectionName"></span></h2>
+                    <div class="quesnum">共<span id="I_num1">0</span>道</div>
+                    <div class="rtopdtxt">
+                        <div class="cur">全部</div>
+                        <div>未出</div>
+                        <div class="nosap">收藏</div>
+                    </div>
+                </div>
+                <div class="rid_top" style="border-bottom: 0px;">
+                    <div class="dondad">
+                    </div>
+                    <div class="bendnumd">本节出题<span class="I_num2">0</span>道</div>
+                </div>
+                <!--列表-->
+                <div class="list782">
+                    <ul class="queslist">
+                    </ul>
+                    <div class="fenye">
+                        <div class="pageyema" style="text-align: right">
+                            <div class="yemafl">
+                                <ul class="pagination">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="loading hidden">
+                        <img src="images/loading.gif">加载中...
+                    </div>
+                    <div class="noquestion hidden">
+                        <img src="images/nodata.png" /><br />
+                        暂无题目
+                    </div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div>
+        </div>
+        <!---->
+    </div>
+    <!--题目详情-->
+    <div class="timuxqd">
+        <div class="mtmtop">
+            <h3>题目详情</h3>
+            <a href="javascript:void(0);" onclick="$('.zhcdf,.timuxqd').hide();" class="colusd"></a>
+            <div class="clear"></div>
+        </div>
+        <ul>
+            <ol class="hidden">
+                <h4></h4>
+                <div class="clear"></div>
+            </ol>
+            <li class="content">
+                
+            </li>
+            <li>
+                <div>
+                    <h6>正确答案</h6>
+                    <p class="jied rightanswer"></p>
+                </div>
+                <div>
+                    <h6>题目解析</h6>
+                    <p class="jied answerexplain"></p>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-61216065-1', 'auto');
+    ga('send', 'pageview');
+
+</script>
+    <div style="display: none;">
+        <form id="chutikuang" action="QuestionBox.aspx" method="post">
+            <input type="hidden" id="questionIDs" name="questionIDs" value="" />
+        </form>
+        <input type="hidden" id="receiveids" value='' />
+    </div>
+    <!--遮罩层-->
+    <div class="zhcdf"></div>
+    <!--报错-->
+    <div class="baocuoWindow">
+        <div class="title">
+            习题报错<input type="hidden" id="hdBaocuoID" />
+        </div>
+        <div class="body">
+            <div class="bctype">
+                <span rel="0">题干有误</span>
+                <span rel="1">答案有误</span>
+                <span rel="2">解释有误</span>
+                <span rel="3">题型有误</span>
+                <span rel="4">章节结构有误</span>
+                <span rel="5">知识点有误</span>
+                <span rel="6">其他错误</span>
+                <div style="clear:both"></div>
+            </div>
+            <div class="bcmessage">
+                <textarea id="txtMessage" style="width:100%; height:200px;" placeholder="错误详情"></textarea>
+            </div>
+        </div>
+        <div class="act">
+            <a href="javascript:void(0);" class="cancel" onclick="$('.zhcdf,.baocuoWindow').hide();">取消</a>
+            <a href="javascript:void(0);" class="enter" onclick="baocuo()">确认</a>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+    <!--自定义分组-->
+    <div class="egrpf">
+        <div class="egrptitle">
+            <p>添加组</p>
+            <span class="alclose"></span>
+        </div>
+        <div class="egrpcont">
+            <input type="text" maxlength="16">
+            <p class="erro">组名为2-6个字符</p>
+        </div>
+        <div class="egrpfoot"><span class="egrpsure">确定</span><span class="egrpcancel">取消</span></div>
+    </div>
+
+    <!--题库模板 通过jquery克隆clone-->
+    <ul>
+        <li class="temp_grpquestion">
+            <div class="selct"></div>
+            <div class="qustion">
+                
+                <div class="qcont">
+                </div>
+            </div>
+            <div class="act">
+                <div class="rightAnswer hidden">C</div>
+                <div class="answerExplain hidden">
+                    <br>
+                    &nbsp;<br>
+                </div>
+                <span class="showanalyse" onclick="getAnswerExplain(this)" style="">查看解析</span>
+                <span class="select " rel="" questiontype="0"></span><span class="history">出过</span>
+                <div style="clear: both"></div>
+            </div>
+        </li>
+        <li class="temp_paperquestion">
+            <div class="qustion">
+                
+                <div class="qcont">
+                </div>
+            </div>
+            <div class="act">
+                <div class="rightAnswer hidden">C</div>
+                <div class="answerExplain hidden">
+                    <br>
+                    &nbsp;<br>
+                </div>
+                <span class="showanalyse" onclick="getAnswerExplain(this)" style="">查看解析</span>
+                <span class="select " rel="" questiontype="0"></span><span class="history">出过</span><span class="baocuo hidden" rel="">报错</span>
+                <div style="clear: both"></div>
+            </div>
+        </li>
+    </ul>
+</body>
+<script type="text/javascript" src="js/jquery.tmpl.js"></script>
+<script type="text/javascript" src="js/public.js?v=2015-09-30"></script>
+<script type="text/javascript" src="js/assignmentHomwork.js?v=2015-09-30"></script>
+<script type="text/javascript" src="js/GroupQuestion.js?v=2015-09-30"></script>
+<script type="text/javascript" src="js/jquery.dialog.js?v=2015-09-30"></script>
+<script type="text/javascript" src="include/jquery.alerts.js"></script>
+<link href="include/jquery.alerts.css" rel="stylesheet" />
+<script id="tmpl_section" type="text/x-jquery-tmpl">
+    <li class="J_section">
+        <h5><a href="javascript:void(0);" rel="${courseSectionID}" level="1" type="0">${sectionName}</a></h5>
+        <dl>
+            {{each(i,sec) list}}
+            
+            {{if sec.questionNum > 0}}
+            <dd>
+            {{else}}
+            <dd class="noques">
+            {{/if}}
+                <a href="javascript:void(0);" class="tfrist" rel="${sec.courseSectionID}" level="2" type="0" title="${sec.sectionName}"><div class="name">${sec.sectionName}</div><div class="questionnum">${sec.questionNum}</div><div style="clear:both"></div></a>
+                <div class="thrednav">
+                    <div class="yhdsaj">
+                        {{each(i,sec3) sec.list}}
+                            {{if sec3.questionNum > 0}}
+                            <a href="javascript:void(0);" rel="${sec3.courseSectionID}" level="3" type="0" title="${sec3.sectionName}">
+                            {{else}}
+                            <a href="javascript:void(0);" rel="${sec3.courseSectionID}" level="3" type="0" title="${sec3.sectionName}" class="noques">
+                            {{/if}}
+                            <p>${sec3.sectionName}</p>
+                            <div class="questionnum" style="padding:9px 4px 9px 0;">${sec3.questionNum}</div>
+                        </a>
+                        {{/each}}                       
+                    </div>
+                </div>
+            </dd>
+            {{/each}}           
+        </dl>
+    </li>
+</script>
+
+<script id="knowledge_tmpl" type="text/x-jquery-tmpl">
+    <li class="J_section">
+        <h5><a href="javascript:void(0);" rel="${knowID}" level="1" type="1">${knowledgeName}</a></h5>
+        <dl>
+            {{each(i,know) list}}
+            
+            <dd>
+                
+                <a href="javascript:void(0);" class="tfrist" rel="${know.knowID}" level="2" type="1" title="${know.knowledgeName}"><div class="name">${know.knowledgeName}</div><div class="questionnum">${know.questionNum}</div><div style="clear:both"></div></a>
+                <div class="thrednav">
+                    <div class="yhdsaj">
+                        {{each(i,know3) know.list}}
+                        <a href="javascript:void(0);" rel="${know3.knowID}" level="3" type="1">
+                            <p>${know3.knowledgeName}</p>
+                            <div class="questionnum" style="padding:9px 4px 9px 0;">${know3.questionNum}</div>
+                        </a>
+                        {{/each}}                       
+                    </div>
+                </div>
+            </dd>
+            {{/each}}           
+        </dl>
+    </li>
+</script>
+</html>
