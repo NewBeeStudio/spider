@@ -13,5 +13,8 @@ BOT_NAME = 'zuoyehezi'
 SPIDER_MODULES = ['zuoyehezi.spiders']
 NEWSPIDER_MODULE = 'zuoyehezi.spiders'
 
+ITEM_PIPELINES = ['zuoyehezi.pipelines.ZuoyeheziPipeline']
+
+AUTOTHROTTLE_ENABLED = True
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zuoyehezi (+http://www.yourdomain.com)'

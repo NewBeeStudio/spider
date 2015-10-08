@@ -7,8 +7,15 @@
 
 import scrapy
 
-
 class ZItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    questionType = scrapy.Field()
+    questionID = scrapy.Field()
+    questionNo = scrapy.Field()
+    content = scrapy.Field()
+    rightAnswer = scrapy.Field()
+    answerExplain = scrapy.Field()
+    difficulty = scrapy.Field()
+    rightRate = scrapy.Field()
+    groupInfo = scrapy.Field()
+    hot = scrapy.Field()
+    questionAudio = scrapy.Field()
