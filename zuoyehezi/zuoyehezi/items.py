@@ -19,3 +19,7 @@ class ZItem(scrapy.Item):
     groupInfo = scrapy.Field()
     hot = scrapy.Field()
     questionAudio = scrapy.Field()
+
+class Image(scrapy.Item):
+    id = scrapy.Field()
+    data = scrapy.Field()

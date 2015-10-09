@@ -1,0 +1,31 @@
+/*
+Database User:  dev
+Password:          dev
+* Remember to grant the privilege to the user dev.
+*/
+
+CREATE SCHEMA IF NOT EXISTS `ZYHZ` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin 
+
+CREATE TABLE IF NOT EXISTS `ZYHZ`.`IMAGE` (
+  `id` VARCHAR(64) CHARACTER SET 'utf8' COLLATE 'utf8_bin' NOT NULL,
+  `data` BLOB NULL DEFAULT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_bin
+
+CREATE TABLE IF NOT EXISTS `ZYHZ`.`QUESTION` (
+  `type` INT(11) NULL DEFAULT NULL,
+  `id` INT(11) NOT NULL,
+  `no` INT(11) NULL DEFAULT NULL,
+  `content` TEXT CHARACTER SET 'utf8' COLLATE 'utf8_bin' NULL DEFAULT NULL,
+  `rightAnswer` TEXT CHARACTER SET 'utf8' COLLATE 'utf8_bin' NULL DEFAULT NULL,
+  `answerExplain` TEXT CHARACTER SET 'utf8' COLLATE 'utf8_bin' NULL DEFAULT NULL,
+  `difficulty` INT(11) NULL DEFAULT NULL,
+  `rightRate` DOUBLE NULL DEFAULT NULL,
+  `hot` INT(11) NULL DEFAULT NULL,
+  `storeTime` DATE NULL DEFAULT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_bin

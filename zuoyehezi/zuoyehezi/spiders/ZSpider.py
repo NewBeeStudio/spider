@@ -5,10 +5,12 @@ from bs4 import BeautifulSoup
 from bs4 import UnicodeDammit 
 from bs4.element import NavigableString 
 from zuoyehezi.items import ZItem
+from zuoyehezi.items import Image
 from scrapy.http import FormRequest
 import urlparse
 import json
 import urllib
+import uuid
 
 interface_url = "/Interface.aspx?url=" # seems to be interface btw front/back-end.
 assignment_url = "/Assignment.aspx?url="
@@ -38,6 +40,23 @@ class ZSpider(Spider):
         question_url = main_url + interface_url + urllib.quote(tmp_url, safe='')
         yield Request(url = question_url, callback=self.analysis)
 
+    def process(self, text):
+        soup = BeautifulSoup(text)
+        imgs = soup.find_all("img")
+        ans = []
+        for i in imgs:
+            if i["src"][0:7] == "http://":
+                temp = i["src"]
+                i["src"] = uuid.uuid1()
+                ans += [(temp, i["src"])]    
+        return ans, str(soup)
+
+    def storeImage(self, response):
+        image = Image()
+        image["id"] = response.meta["id"]
+        image["data"] = response.body
+        yield image
+
     def analysis(self, response):
         q_l = json.loads(response.body)["data"]["list"]
         for i in q_l:
@@ -45,9 +64,15 @@ class ZSpider(Spider):
             item["questionType"] = i["questionType"]
             item["questionID"] = i["questionID"]
             item["questionNo"] = i["questionNo"]
-            item["content"] = i["content"]
-            item["rightAnswer"] = i["rightAnswer"]
-            item["answerExplain"] = i["answerExplain"]
+            temp, item["content"] = self.process(i["content"])
+            for x, y in temp:
+                yield Request(url = x, callback = self.storeImage,  meta={"id": y})
+            temp, item["rightAnswer"] = self.process(i["rightAnswer"])
+            for x, y in temp:
+                yield Request(url = x, callback = self.storeImage,  meta={"id": y})
+            temp, item["answerExplain"] = self.process(i["answerExplain"])
+            for x, y in temp:
+                yield Request(url = x, callback = self.storeImage,  meta={"id": y})
             item["difficulty"] = i["difficulty"]
             item["rightRate"] = i["rightRate"]
             item["groupInfo"] = i["groupInfo"]
