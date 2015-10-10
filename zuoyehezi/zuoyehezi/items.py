@@ -8,6 +8,7 @@
 import scrapy
 
 class ZItem(scrapy.Item):
+    subject = scrapy.Field()
     questionType = scrapy.Field()
     questionID = scrapy.Field()
     questionNo = scrapy.Field()

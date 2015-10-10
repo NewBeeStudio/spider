@@ -64,21 +64,21 @@ def edu_crawl():
     # access question
     cookiename = '1HUuLSP7HSqJ4NyK1I0qMTHHr7Rxmz2bVJ3FRYFrO/OS6YF8mmNsqNbreKvmqebU'
                             # cookie: knowbox_teacherToken.
-    ID = '250'              # id for question list.
-    questionType =  '-1'    # -1: all, 0: choice, 1:multi-choice, 2: answer, 5: cloze.
-    collectType =   '0'     # undefined / 0 / 1, function unknown.
-    outType =       '2'     # undefined / 0 / 2, function unknown.
+    ID = '211'              # id for question list.
+    questionType =  '0'    # -1: all, 0: choice, 1: multi-choice, 2: answer, 5: cloze.
+    collectType =   '0'     # 1: being collected. "收藏"
+    outType =       '0'     # 2: not included "未出"
     pagesize =      '10'    # questions per page
     pagenum =       '0'     # pagination num.
     tmp_url =   "@php/v1_tiku/knowledge/question?source=webTeacher&from=kb&token=%s&version=2.4.0&knowledge_id=%s&question_type=%s&collect=%s&out=%s&page_size=%s&page_num=%s" % \
                 (cookiename, ID, questionType, collectType, outType, pagesize, pagenum)
 
     question_url = main_url + interface_url + urllib.quote(tmp_url, safe='')
+    print question_url
     responce = urllib2.urlopen(question_url)
-    print responce
 
     # TODO: get a suitable title for every page.
-    add_page_to_folder("test.aspx", responce.read())
+    add_page_to_folder("test.html", responce.read())
 
 def main():
     # edu_login(id, pw)

@@ -16,5 +16,14 @@ NEWSPIDER_MODULE = 'zuoyehezi.spiders'
 ITEM_PIPELINES = ['zuoyehezi.pipelines.ZuoyeheziPipeline']
 
 AUTOTHROTTLE_ENABLED = True
+
+# LOG_LEVEL = 'INFO'
+
+DOWNLOAD_DELAY = 2
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zuoyehezi (+http://www.yourdomain.com)'
+DOWNLOADER_MIDDLEWARES = {
+        'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware' : None,
+        'zuoyehezi.rotate_useragent.RotateUserAgentMiddleware' :400
+    }
