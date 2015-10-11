@@ -17,9 +17,12 @@ ITEM_PIPELINES = ['zuoyehezi.pipelines.ZuoyeheziPipeline']
 
 AUTOTHROTTLE_ENABLED = True
 
-# LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'INFO'
 
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 5
+# dynamically avoid visiting too fast
+AUTOTHROTTLE_ENABLED = True
+CONCURRENT_REQUESTS_PER_DOMAIN = 4
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zuoyehezi (+http://www.yourdomain.com)'

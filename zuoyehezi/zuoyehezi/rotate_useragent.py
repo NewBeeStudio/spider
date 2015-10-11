@@ -14,11 +14,11 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
         if ua:
             request.headers.setdefault('User-Agent', ua)
 
-             # Add desired logging message here.
-            spider.log(
-                u'User-Agent: {} {}'.format(request.headers.get('User-Agent'), request),
-                level=log.INFO
-            )
+            # Add desired logging message here.
+            # spider.log(
+            #     u'User-Agent: {} {}'.format(request.headers.get('User-Agent'), request),
+            #     level=log.INFO
+            # )
     #the default user_agent_list composes chrome,I E,firefox,Mozilla,opera,netscape
     #for more user agent strings,you can find it in http://www.useragentstring.com/pages/useragentstring.php
     user_agent_list = [\
