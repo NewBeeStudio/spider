@@ -24,3 +24,8 @@ class ZItem(scrapy.Item):
 class Image(scrapy.Item):
     id = scrapy.Field()
     data = scrapy.Field()
+
+# class Url_crawled(scrapy.Item):
+#     id = scrapy.Field()
+#     list_id = scrapy.Field()
+#     page_id = scrapy.Field()

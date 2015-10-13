@@ -6,11 +6,13 @@ from zuoyehezi.items import ZItem
 from zuoyehezi.items import Image
 from bs4 import BeautifulSoup, UnicodeDammit
 from bs4.element import NavigableString
+import mysql.connector
+
 import urlparse
 import json
 import urllib
 import uuid
-import re, time,random
+import re, time, random
 
 
 # Initialization.
@@ -18,9 +20,10 @@ interface_url = "/Interface.aspx?url=" # seems to be interface btw front/back-en
 assignment_url = "/Assignment.aspx?url="
 login_suffix = "@php/v1_user/teacher/login?source=webTeahcer&version=2.4.0"
 main_url = "http://www.zuoyehezi.com"
-cookienameList = ['GkLJW7sRsxtg6zKEK4bQWApwflkAGRZQOSzsoODaKy5AJmbR0Vt+pCfg+i51FwSz',
-                  'HUuLSP7HSqJ4NyK1I0qMTHHr7Rxmz2bVJ3FRYFrO%2FOS6YF8mmNsqNbreKvmqebU'
-                  ]
+cookienameList = [
+                  '1HUuLSP7HSqJ4NyK1I0qMTHHr7Rxmz2bVJ3FRYFrO%2FOS6YF8mmNsqNbreKvmqebU',
+                  'GkLJW7sRsxtg6zKEK4bQWApwflkAGRZQOSzsoODaKy5AJmbR0Vt+pCfg+i51FwSz',
+                 ]
 
 # get the idx range of every subject. only English currently.
 def getRange(idx):
@@ -34,16 +37,15 @@ class ZSpider(Spider):
     start_urls = []
     start_urls = start_urls + ["http://www.zuoyehezi.com"]
 
-
     def parse(self, response):
 
-        cookiename = 'GkLJW7sRsxtg6zKEK4bQWApwflkAGRZQOSzsoODaKy5AJmbR0Vt+pCfg+i51FwSz' # cookie: knowbox_teacherToken.
+        cookiename = cookienameList[1] # cookie: knowbox_teacherToken.
         ID = 0                  # id for question list.
         questionType =  '-1'    # -1: all, 0: choice, 1:multi-choice, 2: answer, 5: cloze.
         collectType =   '0'     # undefined / 0 / 1, function unknown.
         outType =       '0'     # undefined / 0 / 2, function unknown.
         pagesize =      '10'    # questions per page
-        pagenum =       '0'     # pagination num.    
+        pagenum =       '0'     # pagination    num.    
         
         # every subject:
         for subject in range(9):
@@ -58,32 +60,48 @@ class ZSpider(Spider):
                 
                 question_url = main_url + interface_url + urllib.quote(tmp_url, safe='')
                 # analysis and store
+                self.download_delay = 20
                 self.logger.info('Start crawling list %d page 0', ID)
                 yield Request(url = question_url, callback = self.parse_list, \
                               meta = {"list_id": ID, "page_id": 0, "subject": subject})
 
     def parse_list(self, response):
 
+        # randomize the cookie name. 
         question_url = response.url
+        qList = question_url.split("%26")
+        qList[2] = "token%3D" + random.choice(cookienameList)
+        question_url = "%26".join(qList)
+
         page_id = response.meta["page_id"]
         list_id = response.meta["list_id"]
         content = json.loads(response.body)
         code = content["code"]
+
         # if get nothing.
         if code == 20014:
             # gap = float("%.2f" % random.uniform(2, 4))
             # time.sleep(gap)
+            self.download_delay = 20
             self.logger.info("Oops! Crawler going too fast!")
+            # qList = question_url.split("%26")
+            # qList[2] = "token%3D" + random.choice(cookienameList)
+            # question_url = "%26".join(qList)
             yield Request(question_url, callback = self.parse_list, \
                           meta = {"list_id": list_id, "page_id": page_id, "subject": response.meta["subject"]})
             return
         if code != 99999:
+            print "*****"
+            print question_url
+            print "*****"
             self.logger.warning('Unknown error when crawling list {}, page {}, code {}'.format(list_id, page_id, code))
             return
         if content["data"]["list"] == []:
             self.logger.info('PageInfo: No data exists when crawling list {}, page {}'.format(list_id, page_id))
             return 
+
         q_l = content["data"]["list"]
+
         for i in q_l:
             item = ZItem()
             item["subject"] = response.meta["subject"]
@@ -133,7 +151,8 @@ class ZSpider(Spider):
         image["data"] = response.body
         yield image
 
-# command!
-# cd Document/Work/Cheese@SJTU/spider/zuoyehezi && scrapy crawl ZSpider
+# command!, which can be paused and resumed.
+# cd Document/Work/Cheese@SJTU/spider/zuoyehezi && scrapy crawl ZSpider -s JOBDIR=crawls/ZSpider-1
+# use CTRL+C to pause.
 
 # url = 

@@ -1,10 +1,20 @@
 /*
 Database User:  dev
-Password:          dev
+Password: dev
 * Remember to grant the privilege to the user dev.
 */
 
 CREATE SCHEMA IF NOT EXISTS `ZYHZ` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+
+
+CREATE TABLE IF NOT EXISTS `ZYHZ`.`URL_CRAWELED` (
+  `id` INT(11) NULL DEFAULT NULL,
+  `list_id` INT(11) NULL DEFAULT NULL,
+  `page_id` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_bin;
 
 CREATE TABLE IF NOT EXISTS `ZYHZ`.`IMAGE` (
   `id` VARCHAR(64) CHARACTER SET 'utf8' COLLATE 'utf8_bin' NOT NULL,

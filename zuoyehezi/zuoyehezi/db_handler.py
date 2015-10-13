@@ -15,14 +15,14 @@ class DBHandler(object):
         self.cursor = self.cnx.cursor()
 
     def db_connect(self):
-        cnx = mysql.connector.connect(user = user,password = password, host = '127.0.0.1', database = 'ZYHZ')
+        cnx = mysql.connector.connect(user = user, password = password, host = '127.0.0.1', database = 'ZYHZ')
         return cnx
 
     def insert(self, item, source_date = None):
         if isinstance(item, ZItem):
             add_news = ("INSERT INTO QUESTION "
-                  "(`type`, `id`, `no`, `content`, `rightAnswer`, `answerExplain`, `difficulty`, `rightRate`, `hot`) "
-                  "VALUES (%(type)s, %(id)s, %(no)s, %(content)s, %(rightAnswer)s, %(answerExplain)s, %(difficulty)s, %(rightRate)s, %(hot)s)")
+                  "(`subject`, `type`, `id`, `no`, `content`, `rightAnswer`, `answerExplain`, `difficulty`, `rightRate`, `hot`) "
+                  "VALUES (%(subject)s ,%(type)s, %(id)s, %(no)s, %(content)s, %(rightAnswer)s, %(answerExplain)s, %(difficulty)s, %(rightRate)s, %(hot)s)")
 
             data_news = {
                 'subject' : item["subject"],
@@ -58,3 +58,18 @@ class DBHandler(object):
                 self.cnx.commit()
             except:
                 raise
+        # elif isinstance(item, Url_crawled):
+        #     add_news = ("INSERT INTO URL_CRAWLED "
+        #           "(`id`, `list_id`, `page_id`) "
+        #           "VALUES (%(id)s, %(list_id)s, %(page_id)s)")
+        #     data_news = {
+        #         "id" : item["id"],
+        #         "list_id": item["list_id"],
+        #         "page_id": item["page_id"],
+        #     }
+
+        #     try:
+        #         self.cursor.execute(add_news, data_news)
+        #         self.cnx.commit()
+        #     except:
+        #         raise
