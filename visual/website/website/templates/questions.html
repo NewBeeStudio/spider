@@ -1,0 +1,54 @@
+<style>
+        .word-bold{
+                font-weight: bold;
+        }
+</style>
+{% for i in questionList %}
+        <div class="col-lg-12">
+                <div class="row">
+                        <div class="col-lg-12">
+                                <p>
+                                        <span class="word-bold">ID: </span> {{ i.id }} 
+                                        <span class="word-bold">类型:</span> {{ i.type }} 
+                                        <span class="word-bold">序号:</span> {{i.no}}
+                                        <span class="word-bold">难度:</span> {{i.difficulty}}
+                                        <span class="word-bold">正确率:</span> {{i.rightrate}}
+                                        <span class="word-bold">热度:</span> {{i.hot}}
+                                </p>
+                        </div>
+                        <div class="col-lg-12">
+                                <div class="row">
+                                        <div class="col-lg-12">
+                                                <span class="word-bold">题目内容</span>
+                                        </div>
+                                        <div class="col-lg-12">
+                                                {{ i.content|safe}}
+                                        </div>
+                                </div>
+                        </div>
+                        <div class="col-lg-12">
+                                <div class="row">
+                                        <div class="col-lg-12">
+                                                <span class="word-bold">正确答案</span>
+                                        </div>
+                                        <div class="col-lg-12">
+                                                {{ i.rightanswer|safe}}
+                                        </div>
+                                </div>
+                        </div>
+                        <div class="col-lg-12">
+                                <div class="row">
+                                        <div class="col-lg-12">
+                                                <span class="word-bold">题目解析</span>
+                                        </div>
+                                        <div class="col-lg-12">
+                                                {{ i.answerexplain|safe}}
+                                        </div>
+                                </div>
+                        </div>
+                        <div class="col-lg-12">
+                                <hr>
+                        </div>
+                </div>
+        </div>
+{% endfor %}

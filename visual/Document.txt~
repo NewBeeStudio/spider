@@ -1,0 +1,4 @@
+1. 安装Django
+2. 进入website文件夹
+3. python manage.py runserver
+4. 在浏览器中打开网页http://127.0.0.1:8000/view/limit/offset/，其中limit为一页显示多少道题，offset表示从第几道题开始
