@@ -12,7 +12,7 @@ import urlparse
 import json
 import urllib
 import uuid
-import re, time, random
+import os, re, time, random
 
 
 # Initialization.
@@ -21,52 +21,89 @@ assignment_url = "/Assignment.aspx?url="
 login_suffix = "@php/v1_user/teacher/login?source=webTeahcer&version=2.4.0"
 main_url = "http://www.zuoyehezi.com"
 cookienameList = [
-                  '1HUuLSP7HSqJ4NyK1I0qMTHHr7Rxmz2bVJ3FRYFrO%2FOS6YF8mmNsqNbreKvmqebU',
-                  'GkLJW7sRsxtg6zKEK4bQWApwflkAGRZQOSzsoODaKy5AJmbR0Vt+pCfg+i51FwSz',
+                  '1HUuLSP7HSqJ4NyK1I0qMTHHr7Rxmz2bVJ3FRYFrO%2FOS6YF8mmNsqNbreKvmqebU', # 高中英语
+                  'GkLJW7sRsxtg6zKEK4bQWApwflkAGRZQOSzsoODaKy5AJmbR0Vt+pCfg+i51FwSz',   # 初中数学
                  ]
+
+# store images in directory `images`
+img_dir = "images"
+
+# subjectType = [u"初中英语", u"高中数学"]
+subjectType = [u"高中英语"] # just for test
+
+startIdx =  [206, 0] # 1351 for junior eng, 3 for senior math 
+lastIdx =   [311, 0] # 1442 for junior eng, 205 for senior math
+
+
 
 # get the idx range of every subject. only English currently.
 def getRange(idx):
-    # "0": u"英语", "1":u"语文", "2":u"数学","3": u"物理", "4":u"化学", "5":u"生物", "6":u"历史", "7":u"地理", "8":u"政治"
-    startIdx = [206, 0, 3, 0, 0, 0, 0, 0, 0]
-    lastIdx = [311, 0, 205, 0, 0, 0, 0, 0, 0]
+    # "0": "初中英语", "1":"高中数学"
     return startIdx[idx], lastIdx[idx]
 
 class ZSpider(Spider):
     name = "ZSpider"
     start_urls = []
-    start_urls = start_urls + ["http://www.zuoyehezi.com"]
+    dict_all = {}
+
+    # isntead of __init__, it can pass parameters.
+    def start_requests(self):
+        for i in range(len(subjectType)):
+            tmp_url = "@php/v1_tiku/knowledge/list?source=webTeacher&token=%s&version=2.4.0" % cookienameList[i]
+            url = main_url + interface_url + urllib.quote(tmp_url, safe='')
+            yield Request(url = url, callback = self.parse, meta = {"subject": i})
+
+    def getDesc(self, subject_id, ID):
+        desc = ""
+        d = self.dict_all[subject_id]
+        idx = 0
+        while idx != ID:
+            for i in range(len(d)):
+                item = d[i]
+                idx = int(item["knowID"])
+                if idx < ID:
+                    continue
+                elif idx > ID:
+                    desc += d[i-1]["knowledgeName"] + " > "
+                    d = d[i-1]["list"]
+                    break
+                else:
+                    desc += d[i]["knowledgeName"]
+                    return desc
+
+        return ''
 
     def parse(self, response):
 
-        cookiename = cookienameList[1] # cookie: knowbox_teacherToken.
+        subject_id = response.meta["subject"]
+        content = json.loads(response.body)
+        self.dict_all[subject_id] = content["data"]["list"]
+
+        cookiename = cookienameList[subject_id] # cookie: knowbox_teacherToken.
         ID = 0                  # id for question list.
         questionType =  '-1'    # -1: all, 0: choice, 1:multi-choice, 2: answer, 5: cloze.
         collectType =   '0'     # undefined / 0 / 1, function unknown.
         outType =       '0'     # undefined / 0 / 2, function unknown.
         pagesize =      '10'    # questions per page
         pagenum =       '0'     # pagination    num.    
-        
-        # every subject:
-        for subject in range(9):
-            start, end = getRange(subject)
-            if start == 0 and end == 0:
-                continue
+        start =         startIdx[subject_id]
+        end =           lastIdx[subject_id]
 
-            # start = 220
-            for ID in range(start, end+1):
-                tmp_url = "@php/v1_tiku/knowledge/question?source=webTeacher&from=kb&token=%s&version=2.4.0&knowledge_id=%s&question_type=%s&collect=%s&out=%s&page_size=%s&page_num=%s" % \
-                          (cookiename, ID, questionType, collectType, outType, pagesize, pagenum)
-                
-                question_url = main_url + interface_url + urllib.quote(tmp_url, safe='')
-                # analysis and store
-                self.download_delay = 20
-                self.logger.info('Start crawling list %d page 0', ID)
-                yield Request(url = question_url, callback = self.parse_list, \
-                              meta = {"list_id": ID, "page_id": 0, "subject": subject})
+        if start == 0 and end == 0:
+            return
+        for ID in range(start, end+1):
+            tmp_url = "@php/v1_tiku/knowledge/question?source=webTeacher&from=kb&token=%s&version=2.4.0&knowledge_id=%s&question_type=%s&collect=%s&out=%s&page_size=%s&page_num=%s" % \
+                      (cookiename, ID, questionType, collectType, outType, pagesize, pagenum)
+            
+            question_url = main_url + interface_url + urllib.quote(tmp_url, safe='')
+            desc = self.getDesc(subject_id, ID)
+            
+            # analysis and store
+            self.logger.info('Start crawling list %d page 0', ID)
+            yield Request(url = question_url, callback = self.parse_list, \
+                          meta = {"list_id": ID, "page_id": 0, "subject": subject_id, "desc": desc})
 
     def parse_list(self, response):
-
         # randomize the cookie name. 
         question_url = response.url
         qList = question_url.split("%26")
@@ -80,15 +117,10 @@ class ZSpider(Spider):
 
         # if get nothing.
         if code == 20014:
-            # gap = float("%.2f" % random.uniform(2, 4))
-            # time.sleep(gap)
-            self.download_delay = 20
             self.logger.info("Oops! Crawler going too fast!")
-            # qList = question_url.split("%26")
-            # qList[2] = "token%3D" + random.choice(cookienameList)
-            # question_url = "%26".join(qList)
             yield Request(question_url, callback = self.parse_list, \
-                          meta = {"list_id": list_id, "page_id": page_id, "subject": response.meta["subject"]})
+                          meta = {"list_id": list_id, "page_id": page_id, \
+                                  "subject": response.meta["subject"], "desc": response.meta["desc"]})
             return
         if code != 99999:
             print "*****"
@@ -101,9 +133,9 @@ class ZSpider(Spider):
             return 
 
         q_l = content["data"]["list"]
-
         for i in q_l:
             item = ZItem()
+            item["description"] = response.meta["desc"]
             item["subject"] = response.meta["subject"]
             item["questionType"] = i["questionType"]
             item["questionID"] = i["questionID"]
@@ -130,7 +162,8 @@ class ZSpider(Spider):
         question_url = ''.join([qurl_list[0], "page_num%3D", str(next_page_num)])
         self.logger.info('Start crawling list {} page {}'.format(list_id, next_page_num) )
         yield Request(url = question_url, callback = self.parse_list, \
-                      meta = {"list_id": list_id, "page_id": page_id, "subject": response.meta["subject"]})
+                      meta = {"list_id": list_id, "page_id": page_id, \
+                              "subject": response.meta["subject"], "desc": response.meta["desc"]})
 
     # image sep., 
     # ?and wash out texts: html/body/span/ ?
@@ -147,9 +180,17 @@ class ZSpider(Spider):
 
     def storeImage(self, response):
         image = Image()
-        image["id"] = response.meta["id"]
-        image["data"] = response.body
-        yield image
+        img_id = response.meta["id"]
+        image["url"] = img_id
+        try:
+            self.logger.info('Storing image now...')
+            store_url = "%s/%s.jpg" % (img_dir, img_id)
+            f = open(store_url, 'wb')
+            f.write(response.body)
+            f.close()
+            yield image
+        except:
+            yield Request(url = response.url, callback = self.storeImage,  meta={"id": img_id})
 
 # command!, which can be paused and resumed.
 # cd Document/Work/Cheese@SJTU/spider/zuoyehezi && scrapy crawl ZSpider -s JOBDIR=crawls/ZSpider-1

@@ -20,13 +20,20 @@ AUTOTHROTTLE_ENABLED = True
 LOG_LEVEL = 'INFO'
 
 # dynamically avoid visiting too fast
-DOWNLOAD_DELAY = 0.001
+DOWNLOAD_DELAY = 3
 AUTOTHROTTLE_ENABLED = True
-CONCURRENT_REQUESTS_PER_DOMAIN = 4
+LIMIT_SITES = {
+	'www.zuoyehezi.com': 0
+}
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zuoyehezi (+http://www.yourdomain.com)'
 DOWNLOADER_MIDDLEWARES = {
-        'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware' : None,
-        'zuoyehezi.rotate_useragent.RotateUserAgentMiddleware' :400
-    }
+    'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware' : None,
+    'zuoyehezi.rotate_useragent.RotateUserAgentMiddleware' :400
+}
+
+EXTENSIONS = {
+	'zuoyehezi.extensions.throttle.AutoThrottleWithList': 300
+}

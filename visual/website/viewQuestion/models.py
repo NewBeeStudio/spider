@@ -5,7 +5,7 @@ from django.utils import timezone
 
 class Image(models.Model):
     id = models.CharField(primary_key=True, max_length=64)
-    data = models.TextField(blank=True)
+    data = models.BinaryField(blank=True)
     class Meta:
         managed = False
         db_table = 'image'

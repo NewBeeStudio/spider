@@ -8,6 +8,7 @@ from zuoyehezi.items import Image
 
 user = 'root'
 password = ''
+database = 'ZYHZ1'
 
 class DBHandler(object):
     def __init__(self):
@@ -15,20 +16,21 @@ class DBHandler(object):
         self.cursor = self.cnx.cursor()
 
     def db_connect(self):
-        cnx = mysql.connector.connect(user = user, password = password, host = '127.0.0.1', database = 'ZYHZ')
+        cnx = mysql.connector.connect(user = user, password = password, host = '127.0.0.1', database = database)
         return cnx
 
     def insert(self, item, source_date = None):
         if isinstance(item, ZItem):
             add_news = ("INSERT INTO QUESTION "
-                  "(`subject`, `type`, `id`, `no`, `content`, `rightAnswer`, `answerExplain`, `difficulty`, `rightRate`, `hot`) "
-                  "VALUES (%(subject)s ,%(type)s, %(id)s, %(no)s, %(content)s, %(rightAnswer)s, %(answerExplain)s, %(difficulty)s, %(rightRate)s, %(hot)s)")
+                  "(`subject`, `type`, `id`, `no`, `description`, `content`, `rightAnswer`, `answerExplain`, `difficulty`, `rightRate`, `hot`) "
+                  "VALUES (%(subject)s ,%(type)s, %(id)s, %(no)s, %(description)s, %(content)s, %(rightAnswer)s, %(answerExplain)s, %(difficulty)s, %(rightRate)s, %(hot)s)")
 
             data_news = {
                 'subject' : item["subject"],
                 'type' : item["questionType"],
                 'id' : item["questionID"],        
-                'no' : item["questionNo"],        
+                'no' : item["questionNo"],
+                'description': item["description"],        
                 'content' : item["content"],        
                 'rightAnswer' :  item["rightAnswer"],        
                 'answerExplain' : item["answerExplain"],    
@@ -44,13 +46,11 @@ class DBHandler(object):
             except:
                 raise
         elif isinstance(item, Image):
-            add_news = ("INSERT INTO IMAGE "
-                  "(`id`, `data`) "
-                  "VALUES (%(id)s, %(data)s)")
+            add_news = ("INSERT INTO IMAGE_URL "
+                  "(`url`) "
+                  "VALUES (%(url)s)")
             data_news = {
-                "id" : str(item["id"]),
-                "data": item["data"],
-                "storeTime": time.strftime('%Y-%m-%d')
+                "url" : str(item["url"]),
             }
 
             try:
@@ -58,18 +58,3 @@ class DBHandler(object):
                 self.cnx.commit()
             except:
                 raise
-        # elif isinstance(item, Url_crawled):
-        #     add_news = ("INSERT INTO URL_CRAWLED "
-        #           "(`id`, `list_id`, `page_id`) "
-        #           "VALUES (%(id)s, %(list_id)s, %(page_id)s)")
-        #     data_news = {
-        #         "id" : item["id"],
-        #         "list_id": item["list_id"],
-        #         "page_id": item["page_id"],
-        #     }
-
-        #     try:
-        #         self.cursor.execute(add_news, data_news)
-        #         self.cnx.commit()
-        #     except:
-        #         raise

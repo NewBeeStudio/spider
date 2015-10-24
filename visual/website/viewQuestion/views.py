@@ -12,8 +12,8 @@ def addImage(text):
         imgs = soup.find_all("img")
         for img in imgs:
                 if img["src"][0:7] != "http://":
-                        img["src"] = "/image/" + img["src"]
-        return str(soup) 
+                        img["src"] = "/static/images/" + img["src"] + ".jpg"
+        return str(soup)
 
 def view(request, limit, offset):
         limit = int(limit)

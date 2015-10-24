@@ -12,6 +12,7 @@ class ZItem(scrapy.Item):
     questionType = scrapy.Field()
     questionID = scrapy.Field()
     questionNo = scrapy.Field()
+    description = scrapy.Field()
     content = scrapy.Field()
     rightAnswer = scrapy.Field()
     answerExplain = scrapy.Field()
@@ -22,8 +23,7 @@ class ZItem(scrapy.Item):
     questionAudio = scrapy.Field()
 
 class Image(scrapy.Item):
-    id = scrapy.Field()
-    data = scrapy.Field()
+    url = scrapy.Field()
 
 # class Url_crawled(scrapy.Item):
 #     id = scrapy.Field()
