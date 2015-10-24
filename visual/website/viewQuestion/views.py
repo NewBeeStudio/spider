@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import render_to_response
 from models import Question
-from models import Image
+# from models import Image
 from bs4 import BeautifulSoup
 
 def addImage(text):
@@ -12,8 +12,8 @@ def addImage(text):
         imgs = soup.find_all("img")
         for img in imgs:
                 if img["src"][0:7] != "http://":
-                        img["src"] = "/static/images/" + img["src"] + ".jpg"
-        return str(soup)
+                        img["src"] = "/static/image/" + img["src"]
+        return str(soup) 
 
 def view(request, limit, offset):
         limit = int(limit)
@@ -35,6 +35,13 @@ def view(request, limit, offset):
         #         text += str(soup) 
         # return HttpResponse(text)
 
+
+def deleteQuestion(request, id):
+        questions = Question.objects.filter(id=id)
+        for q in questions:
+                q.delete()
+        return HttpResponse("Success")
+'''
 def getImage(request, id):
         text = ""
         #text = id
@@ -42,6 +49,8 @@ def getImage(request, id):
         if len(img) != 0:
                 text = img[0].data
         return HttpResponse(text)
+
+'''
 
 def main(request):
         return render_to_response('center.html', locals())

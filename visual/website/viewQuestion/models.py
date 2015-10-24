@@ -3,13 +3,14 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
+'''
 class Image(models.Model):
     id = models.CharField(primary_key=True, max_length=64)
-    data = models.BinaryField(blank=True)
+    data = models.TextField(blank=True)
     class Meta:
         managed = False
         db_table = 'image'
-
+'''
 
 class Question(models.Model):
     type = models.IntegerField(blank=True, null=True)
@@ -22,7 +23,13 @@ class Question(models.Model):
     rightrate = models.FloatField(db_column='rightRate', blank=True, null=True)  # Field name made lowercase.
     hot = models.IntegerField(blank=True, null=True)
     storetime = models.DateField(db_column='storeTime', blank=True, null=True)  # Field name made lowercase.
-
+    A = models.TextField(db_column='A', blank=True)  # Field name made lowercase.
+    B = models.TextField(db_column='B', blank=True)  # Field name made lowercase.
+    C = models.TextField(db_column='C', blank=True)  # Field name made lowercase.
+    D = models.TextField(db_column='D', blank=True)  # Field name made lowercase.
+    source = models.TextField(db_column='source', blank=True)  # Field name made lowercase.
+    plainText = models.TextField(db_column='plainText', blank=True)  # Field name made lowercase.
+    
     class Meta:
         managed = False
-        db_table = 'question'
+        db_table = 'QUESTION'

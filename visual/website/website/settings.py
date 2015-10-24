@@ -75,8 +75,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ZYHZ',
-        'USER': 'root',
-        'PASSWORD': '',
+        'USER': 'dev',
+        'PASSWORD': 'dev',
         'HOST': '',
         'POST': '',
     }

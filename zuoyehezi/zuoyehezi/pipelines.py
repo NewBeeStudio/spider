@@ -1,4 +1,4 @@
-x# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # Define your item pipelines here
 #

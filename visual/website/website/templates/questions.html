@@ -3,17 +3,29 @@
                 font-weight: bold;
         }
 </style>
+<script>
+        function deleteQuestion(id){
+                $.ajax({
+                        url: "/deleteQuestion/" + id,
+                        success: function(data){
+                                alert("删除成功");
+                                $("#" + id).css("display", "none");
+                        }
+                });
+        }
+</script>
 {% for i in questionList %}
-        <div class="col-lg-12">
+        <div class="col-lg-12" id="{{ i.id }}">
                 <div class="row">
                         <div class="col-lg-12">
                                 <p>
+                                        <span class="word-bold">序号:</span> {{ forloop.counter0|add:offset}} 
                                         <span class="word-bold">ID: </span> {{ i.id }} 
                                         <span class="word-bold">类型:</span> {{ i.type }} 
-                                        <span class="word-bold">序号:</span> {{i.no}}
                                         <span class="word-bold">难度:</span> {{i.difficulty}}
                                         <span class="word-bold">正确率:</span> {{i.rightrate}}
                                         <span class="word-bold">热度:</span> {{i.hot}}
+                                        <span><button type="button" class="btn btn-danger btn-xs pull-right" onclick="deleteQuestion({{ i.id }})">删除</button></span>
                                 </p>
                         </div>
                         <div class="col-lg-12">

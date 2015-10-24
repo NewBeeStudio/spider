@@ -99,7 +99,7 @@ class ZSpider(Spider):
             desc = self.getDesc(subject_id, ID)
             
             # analysis and store
-            self.logger.info('Start crawling list %d page 0', ID)
+            # self.logger.info('Start crawling list %d page 0', ID)
             yield Request(url = question_url, callback = self.parse_list, \
                           meta = {"list_id": ID, "page_id": 0, "subject": subject_id, "desc": desc})
 
@@ -117,7 +117,7 @@ class ZSpider(Spider):
 
         # if get nothing.
         if code == 20014:
-            self.logger.info("Oops! Crawler going too fast!")
+            # self.logger.info("Oops! Crawler going too fast!")
             yield Request(question_url, callback = self.parse_list, \
                           meta = {"list_id": list_id, "page_id": page_id, \
                                   "subject": response.meta["subject"], "desc": response.meta["desc"]})
@@ -126,10 +126,10 @@ class ZSpider(Spider):
             print "*****"
             print question_url
             print "*****"
-            self.logger.warning('Unknown error when crawling list {}, page {}, code {}'.format(list_id, page_id, code))
+            # self.logger.warning('Unknown error when crawling list {}, page {}, code {}'.format(list_id, page_id, code))
             return
         if content["data"]["list"] == []:
-            self.logger.info('PageInfo: No data exists when crawling list {}, page {}'.format(list_id, page_id))
+            # self.logger.info('PageInfo: No data exists when crawling list {}, page {}'.format(list_id, page_id))
             return 
 
         q_l = content["data"]["list"]
@@ -155,12 +155,13 @@ class ZSpider(Spider):
             item["groupInfo"] = i["groupInfo"]      
             item["hot"] = i["hot"]                  # can be all 0, if none.
             item["questionAudio"] = i["questionAudio"]
+            self.analysis(item)
             yield item
         qurl_list = question_url.split("page_num%3D")
 
         next_page_num = int(qurl_list[1]) + 1
         question_url = ''.join([qurl_list[0], "page_num%3D", str(next_page_num)])
-        self.logger.info('Start crawling list {} page {}'.format(list_id, next_page_num) )
+        # self.logger.info('Start crawling list {} page {}'.format(list_id, next_page_num) )
         yield Request(url = question_url, callback = self.parse_list, \
                       meta = {"list_id": list_id, "page_id": page_id, \
                               "subject": response.meta["subject"], "desc": response.meta["desc"]})
@@ -183,14 +184,30 @@ class ZSpider(Spider):
         img_id = response.meta["id"]
         image["url"] = img_id
         try:
-            self.logger.info('Storing image now...')
-            store_url = "%s/%s.jpg" % (img_dir, img_id)
+            # self.logger.info('Storing image now...')
+            store_url = "%s/%s" % (img_dir, img_id)
             f = open(store_url, 'wb')
             f.write(response.body)
             f.close()
             yield image
         except:
             yield Request(url = response.url, callback = self.storeImage,  meta={"id": img_id})
+
+    def analysis(self, item):
+        # type: 0 => 选择题 1=>多选题 2 => 解答题 5=>完形填空题
+        soup = BeautifulSoup(item["content"])
+        colf43 = soup.find_all("span", class_="colf43")
+        if len(colf43) != 0:
+            item["source"] = colf43[0].text
+        if item["questionType"] == "0":
+            table = soup.find("table", attrs={"name": "optionsTable"})
+            tds = table.find_all("td")
+            if len(tds) != 0:
+                item['A'] = tds[0].text[2:]
+                item['B'] = tds[1].text[2:]
+                item['C'] = tds[2].text[2:]
+                item['D'] = tds[3].text[2:]
+        item["plainText"] = soup.text
 
 # command!, which can be paused and resumed.
 # cd Document/Work/Cheese@SJTU/spider/zuoyehezi && scrapy crawl ZSpider -s JOBDIR=crawls/ZSpider-1
