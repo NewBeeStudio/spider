@@ -193,21 +193,56 @@ class ZSpider(Spider):
         except:
             yield Request(url = response.url, callback = self.storeImage,  meta={"id": img_id})
 
+
+    def semanticAnalysis(self, txt, item, c):
+        tmpList = txt.split("A" + c)
+        if len(tmpList) != 2:
+            #Parse Failed
+            return False
+        tmpText = tmpList[1]
+        tmpList = tmpText.split("B" + c)
+        item['A'] = tmpList[0]
+        if len(tmpList) != 2:
+            #Parse Failed
+            return False
+        tmpText = tmpList[1]
+        tmpList = tmpText.split("C" + c)
+        item['B'] = tmpList[0]
+        if len(tmpList) != 2:
+            #Parse Failed
+            return False
+        tmpText = tmpList[1]
+        tmpList = tmpText.split("D" + c)
+        item['C'] = tmpList[0]
+        if len(tmpList) != 2:
+            #Parse Failed
+            return False
+        item["D"] = tmpList[1]
+        return True
+
     def analysis(self, item):
         # type: 0 => 选择题 1=>多选题 2 => 解答题 5=>完形填空题
         soup = BeautifulSoup(item["content"])
         colf43 = soup.find_all("span", class_="colf43")
+        item["plainText"] = soup.text
         if len(colf43) != 0:
             item["source"] = colf43[0].text
         if item["questionType"] == "0":
             table = soup.find("table", attrs={"name": "optionsTable"})
             tds = table.find_all("td")
             if len(tds) != 0:
+                # Normalized
                 item['A'] = tds[0].text[2:]
                 item['B'] = tds[1].text[2:]
                 item['C'] = tds[2].text[2:]
                 item['D'] = tds[3].text[2:]
-        item["plainText"] = soup.text
+            else:
+                txt = soup.text
+                if semanticAnalysis(txt, item, '.'):
+                    return
+                elif semanticAnalysis(txt, item, ')'):
+                    return
+                
 
 # command!, which can be paused and resumed.
 # cd Document/Work/Cheese@SJTU/spider/zuoyehezi && scrapy crawl ZSpider -s JOBDIR=crawls/ZSpider-1
