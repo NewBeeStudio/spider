@@ -6,9 +6,9 @@ import time
 from zuoyehezi.items import ZItem
 from zuoyehezi.items import Image
 
-user = 'dev'
-password = 'dev'
-database = 'ZYHZ'
+user = 'root'
+password = ''
+database = 'ZYHZ1'
 
 class DBHandler(object):
     def __init__(self):

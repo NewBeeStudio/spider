@@ -21,6 +21,8 @@ assignment_url = "/Assignment.aspx?url="
 login_suffix = "@php/v1_user/teacher/login?source=webTeahcer&version=2.4.0"
 main_url = "http://www.zuoyehezi.com"
 cookienameList = [
+                  '5lSrFqJA8W/BMizviIthB4qdfYWwHLCcOauAOHfrxf7WHw5S/rOr/Kl8yHtaGsW1',   # 初中英语
+                  '/DQPDPQ9GPZorPPGPde+3ogXOw3zbbu5bCe+8+WveLO696oxcyxUqd96oVJTfyuE',   # 高中数学
                   '1HUuLSP7HSqJ4NyK1I0qMTHHr7Rxmz2bVJ3FRYFrO%2FOS6YF8mmNsqNbreKvmqebU', # 高中英语
                   'GkLJW7sRsxtg6zKEK4bQWApwflkAGRZQOSzsoODaKy5AJmbR0Vt+pCfg+i51FwSz',   # 初中数学
                  ]
@@ -31,8 +33,8 @@ img_dir = "images"
 # subjectType = [u"初中英语", u"高中数学"]
 subjectType = [u"高中英语"] # just for test
 
-startIdx =  [206, 0] # 1351 for junior eng, 3 for senior math 
-lastIdx =   [311, 0] # 1442 for junior eng, 205 for senior math
+startIdx =  [1351, 3] # 1351 for junior eng, 3 for senior math 
+lastIdx =   [1442, 205] # 1442 for junior eng, 205 for senior math
 
 
 
@@ -62,6 +64,8 @@ class ZSpider(Spider):
                 item = d[i]
                 idx = int(item["knowID"])
                 if idx < ID:
+                    if i == len(d) - 1:
+                        d = d[i]["list"]
                     continue
                 elif idx > ID:
                     desc += d[i-1]["knowledgeName"] + " > "
@@ -99,7 +103,7 @@ class ZSpider(Spider):
             desc = self.getDesc(subject_id, ID)
             
             # analysis and store
-            # self.logger.info('Start crawling list %d page 0', ID)
+            self.logger.info('Start crawling list %d page 0', ID)
             yield Request(url = question_url, callback = self.parse_list, \
                           meta = {"list_id": ID, "page_id": 0, "subject": subject_id, "desc": desc})
 
@@ -117,7 +121,7 @@ class ZSpider(Spider):
 
         # if get nothing.
         if code == 20014:
-            # self.logger.info("Oops! Crawler going too fast!")
+            self.logger.info("Oops! Crawler going too fast!")
             yield Request(question_url, callback = self.parse_list, \
                           meta = {"list_id": list_id, "page_id": page_id, \
                                   "subject": response.meta["subject"], "desc": response.meta["desc"]})
@@ -126,10 +130,10 @@ class ZSpider(Spider):
             print "*****"
             print question_url
             print "*****"
-            # self.logger.warning('Unknown error when crawling list {}, page {}, code {}'.format(list_id, page_id, code))
+            self.logger.warning('Unknown error when crawling list {}, page {}, code {}'.format(list_id, page_id, code))
             return
         if content["data"]["list"] == []:
-            # self.logger.info('PageInfo: No data exists when crawling list {}, page {}'.format(list_id, page_id))
+            self.logger.info('PageInfo: No data exists when crawling list {}, page {}'.format(list_id, page_id))
             return 
 
         q_l = content["data"]["list"]
@@ -161,7 +165,7 @@ class ZSpider(Spider):
 
         next_page_num = int(qurl_list[1]) + 1
         question_url = ''.join([qurl_list[0], "page_num%3D", str(next_page_num)])
-        # self.logger.info('Start crawling list {} page {}'.format(list_id, next_page_num) )
+        self.logger.info('Start crawling list {} page {}'.format(list_id, next_page_num) )
         yield Request(url = question_url, callback = self.parse_list, \
                       meta = {"list_id": list_id, "page_id": page_id, \
                               "subject": response.meta["subject"], "desc": response.meta["desc"]})
@@ -184,7 +188,7 @@ class ZSpider(Spider):
         img_id = response.meta["id"]
         image["url"] = img_id
         try:
-            # self.logger.info('Storing image now...')
+            self.logger.info('Storing image now...')
             store_url = "%s/%s" % (img_dir, img_id)
             f = open(store_url, 'wb')
             f.write(response.body)
@@ -229,6 +233,8 @@ class ZSpider(Spider):
             item["source"] = colf43[0].text
         if item["questionType"] == "0":
             table = soup.find("table", attrs={"name": "optionsTable"})
+            if not table:
+                return
             tds = table.find_all("td")
             if len(tds) != 0:
                 # Normalized
