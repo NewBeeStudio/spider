@@ -20,8 +20,9 @@ AUTOTHROTTLE_ENABLED = True
 LOG_LEVEL = 'INFO'
 
 # dynamically avoid visiting too fast
-DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 2
 AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_START_DELAY = 4
 LIMIT_SITES = {
 	'www.zuoyehezi.com': 0
 }
@@ -35,5 +36,5 @@ DOWNLOADER_MIDDLEWARES = {
 }
 
 EXTENSIONS = {
-	'zuoyehezi.extensions.throttle.AutoThrottleWithList': 300
+	'zuoyehezi.extensions.throttle.AutoThrottleWithList': 200
 }

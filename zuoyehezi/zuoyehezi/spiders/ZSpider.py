@@ -30,8 +30,8 @@ cookienameList = [
 # store images in directory `images`
 img_dir = "images"
 
-# subjectType = [u"初中英语", u"高中数学"]
-subjectType = [u"高中英语"] # just for test
+subjectType = [u"初中英语", u"高中数学"]
+# subjectType = [u"高中英语", u""] # just for test
 
 startIdx =  [1351, 3] # 1351 for junior eng, 3 for senior math 
 lastIdx =   [1442, 205] # 1442 for junior eng, 205 for senior math
@@ -96,12 +96,18 @@ class ZSpider(Spider):
         if start == 0 and end == 0:
             return
         for ID in range(start, end+1):
+            if ID == 1427:      # an exception for crawling!
+                continue
             tmp_url = "@php/v1_tiku/knowledge/question?source=webTeacher&from=kb&token=%s&version=2.4.0&knowledge_id=%s&question_type=%s&collect=%s&out=%s&page_size=%s&page_num=%s" % \
                       (cookiename, ID, questionType, collectType, outType, pagesize, pagenum)
             
             question_url = main_url + interface_url + urllib.quote(tmp_url, safe='')
+            qList = question_url.split("%26")
+            qList[2] = "token%3D" + random.choice(cookienameList)
+            question_url = "%26".join(qList)
             desc = self.getDesc(subject_id, ID)
             
+
             # analysis and store
             self.logger.info('Start crawling list %d page 0', ID)
             yield Request(url = question_url, callback = self.parse_list, \
@@ -122,6 +128,10 @@ class ZSpider(Spider):
         # if get nothing.
         if code == 20014:
             self.logger.info("Oops! Crawler going too fast!")
+            question_url = response.url
+            qList = question_url.split("%26")
+            qList[2] = "token%3D" + random.choice(cookienameList)
+            question_url = "%26".join(qList)
             yield Request(question_url, callback = self.parse_list, \
                           meta = {"list_id": list_id, "page_id": page_id, \
                                   "subject": response.meta["subject"], "desc": response.meta["desc"]})
@@ -189,7 +199,7 @@ class ZSpider(Spider):
         image["url"] = img_id
         try:
             self.logger.info('Storing image now...')
-            store_url = "%s/%s" % (img_dir, img_id)
+            store_url = "%s/%s.jpg" % (img_dir, img_id)
             f = open(store_url, 'wb')
             f.write(response.body)
             f.close()
@@ -233,20 +243,25 @@ class ZSpider(Spider):
             item["source"] = colf43[0].text
         if item["questionType"] == "0":
             table = soup.find("table", attrs={"name": "optionsTable"})
-            if not table:
-                return
-            tds = table.find_all("td")
-            if len(tds) != 0:
-                # Normalized
-                item['A'] = tds[0].text[2:]
-                item['B'] = tds[1].text[2:]
-                item['C'] = tds[2].text[2:]
-                item['D'] = tds[3].text[2:]
+            if table:
+                tds = table.find_all("td")
+                if len(tds) != 0:
+                    # Normalized
+                    item['A'] = tds[0].text[2:]
+                    item['B'] = tds[1].text[2:]
+                    item['C'] = tds[2].text[2:]
+                    if len(tds) > 3:
+                        item['D'] = tds[3].text[2:]
+                    else:
+                        # some of the choices have only A, B, C.
+                        item['D'] = ''
             else:
-                txt = soup.text
-                if semanticAnalysis(txt, item, '.'):
+                txt = re.sub(r"(?:<span.*?>|</span>|<p>|</p>|</body>|</html>|\n|\t)", '', soup.text)
+                if self.semanticAnalysis(txt, item, '.'):
                     return
-                elif semanticAnalysis(txt, item, ')'):
+                elif self.semanticAnalysis(txt, item, ')'):
+                    return
+                elif self.semanticAnalysis(txt, item, '．'):
                     return
                 
 
