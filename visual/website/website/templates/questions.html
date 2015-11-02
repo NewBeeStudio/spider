@@ -13,6 +13,22 @@
                         }
                 });
         }
+        $(function(){
+                $(".type").each(function(){
+                        var text =  $(this).html();
+                        if (text == "0"){
+                                $(this).html("选择题");
+                        }else if (text == "1"){
+                                $(this).html("多选题");       
+                        }else if (text == "2"){
+                                $(this).html("解答题");       
+                        }else if (text == "5"){
+                                $(this).html("完形填空题");       
+                        }else{
+                                $(this).html("其他");               
+                        }        
+                })
+        });
 </script>
 {% for i in questionList %}
         <div class="col-lg-12" id="{{ i.id }}">
@@ -21,10 +37,11 @@
                                 <p>
                                         <span class="word-bold">序号:</span> {{ forloop.counter0|add:offset}} 
                                         <span class="word-bold">ID: </span> {{ i.id }} 
-                                        <span class="word-bold">类型:</span> {{ i.type }} 
+                                        <span class="word-bold">类型:</span> <span class="type">{{ i.type }}</span> 
                                         <span class="word-bold">难度:</span> {{i.difficulty}}
                                         <span class="word-bold">正确率:</span> {{i.rightrate}}
                                         <span class="word-bold">热度:</span> {{i.hot}}
+                                        <span class="word-bold">描述:</span> {{i.description}}
                                         <span><button type="button" class="btn btn-danger btn-xs pull-right" onclick="deleteQuestion({{ i.id }})">删除</button></span>
                                 </p>
                         </div>
