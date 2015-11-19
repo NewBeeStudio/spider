@@ -18,6 +18,7 @@ class Question(models.Model):
     no = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True)
     content = models.TextField(blank=True)
+    subject = models.IntegerField(db_column='subject',blank=True)
     rightanswer = models.TextField(db_column='rightAnswer', blank=True)  # Field name made lowercase.
     answerexplain = models.TextField(db_column='answerExplain', blank=True)  # Field name made lowercase.
     difficulty = models.IntegerField(blank=True, null=True)

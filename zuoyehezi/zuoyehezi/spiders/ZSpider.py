@@ -230,7 +230,7 @@ class ZSpider(Spider):
         item['C'] = tmpList[0]
         if len(tmpList) != 2:
             #Parse Failed
-            return False
+            return False    
         item["D"] = tmpList[1]
         return True
 

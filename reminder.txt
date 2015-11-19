@@ -2,3 +2,5 @@
 2. 把content修改成只有题干，不含有选项以及题目来源
 3. 显示description
 4. 进一步爬取一些选项
+5. plaintext只存选项
+6. 

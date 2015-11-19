@@ -1,4 +1,4 @@
-#coding: utf-8
+﻿#coding: utf-8
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -12,14 +12,21 @@ def addImage(text):
         imgs = soup.find_all("img")
         for img in imgs:
                 if img["src"][0:7] != "http://":
-                        img["src"] = "/static/image/" + img["src"]
+                        img["src"] = "/static/image/" + img["src"] + ".jpg"
         return str(soup) 
 
-def view(request, limit, offset):
+def view(request, limit, offset, subject, qtype):
         limit = int(limit)
         offset = int(offset)
-        questionList = Question.objects.all()[offset: offset + limit]
-        subjects = {"0": u"数学", "1":u"语文", "2":u"英语","3": u"物理", "4":u"化学", "5":u"生物", "6":u"历史", "7":u"地理", "8":u"政治"}
+        subject = int(subject)
+        qtype = int(qtype)
+        questionList = []
+        if subject == -1 and qtype == -1:
+                questionList = Question.objects.all()[offset: offset + limit]
+        elif qtype == -1:
+                questionList = Question.objects.all().filter(subject=subject)[offset: offset + limit]
+        else:
+                questionList = Question.objects.all().filter(subject=None).filter(type=qtype)[offset: offset + limit]
         for i in questionList:
                 i.content = addImage(i.content)
                 i.rightanswer = addImage(i.rightanswer)
@@ -31,7 +38,7 @@ def view(request, limit, offset):
         #         imgs = soup.find_all("img")
         #         for i in imgs:
         #                 if i["src"][0:7] != "http://":
-        #                         i["src"] = "/image/" + i["src"]
+        #                         i["src"] = "/images/images/" + i["src"]
         #         text += str(soup) 
         # return HttpResponse(text)
 

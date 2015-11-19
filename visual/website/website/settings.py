@@ -33,10 +33,17 @@ TEMPLATE_DIRS = (
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
+STATICFILES_FINDERS = (
+'django.contrib.staticfiles.finders.FileSystemFinder',
+'django.contrib.staticfiles.finders.AppDirectoriesFinder',)
+
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-   os.path.join(os.path.dirname(__file__), 'static').replace('\\','/'), 
+   os.path.join(BASE_DIR, "images/images"),
+   os.path.join(os.path.dirname(__file__), 'static').replace('\\','/'),
+
+ 
 )
 #STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/') 
 

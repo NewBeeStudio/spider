@@ -1,77 +1,106 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-        <head>
-                <meta charset="utf-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>Questions</title>
-                <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        </head>
-        <body>
-                <div class="container" style="padding: 10px">
-                        <div class="row">
-                                <div class="col-lg-3">
-                                        <h1>筛选</h1>
-                                        <form class="form-horizontal col-lg-12" role="form">
-                                                <div class="form-group">
-                                                        <div class="row">
-                                                                <label for="page" class="control-label col-sm-6">当前页数</label>
-                                                                <div class="col-sm-6">
-                                                                        <input class="form-control" type="text" id="page" name="page"/>
-                                                                </div>
-                                                        </div>
-                                                </div>
-                                                <div class="form-group">
-                                                        <div class="row">
-                                                                <label for="size" class="control-label col-sm-6">每页题数</label>
-                                                                <div class="col-sm-6">
-                                                                        <input class="form-control" type="text" id="size" name="size"/>
-                                                                </div>
-                                                        </div>
-                                                </div>
-                                                <div class="form-group">
-                                                        <button type="button" class="btn btn-primary pull-right" onclick="getQuestions()" style="margin-left: 10px">查看</button>
-                                                        <button type="button" class="btn btn-primary pull-right" onclick="next()" style="margin-left: 10px">下一页</button>
-                                                        <button type="button" class="btn btn-primary pull-right" onclick="before()" style="margin-left: 10px">上一页</button>
-                                                </div>
-                                        </form>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Questions</title>
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container" style="padding: 10px">
+            <div class="row">
+                <div class="col-lg-3">
+                    <h1>筛选</h1>
+                    <form class="form-horizontal col-lg-12" role="form">
+                        <div class="form-group">
+                            <div class="row">
+                                <label for="page" class="control-label col-sm-6">当前页数</label>
+                                <div class="col-sm-6">
+                                    <input class="form-control" type="text" id="page" name="page"/>
                                 </div>
-                                <div class="col-lg-9">
-                                        <div id="content" class="row">
-                                        </div>
-                                </div>
+                            </div>
                         </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <label for="size" class="control-label col-sm-6">每页题数</label>
+                                <div class="col-sm-6">
+                                    <input class="form-control" type="text" id="size" name="size"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <label for="subject" class="control-label col-sm-6">学科</label>
+                                <div class="col-sm-6">
+                                    <select name="subject" id="subject">
+                                        <option value="-1">全部科目</option>
+                                        <option value="0">英语</option>
+                                        <option value="1">数学</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <label for="type" class="control-label col-sm-6">学科</label>
+                                <div class="col-sm-6">
+                                    <select name="type" id="type">
+                                        <option value="-1">所有题型</option>
+                                        <option value="0">单选题</option>
+                                        <option value="1">多选题</option>
+                                        <option value="2">解答题</option>
+                                        <!-- <option value="5">完形填空</option> -->
+                                        <option value="9">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary pull-right" onclick="getQuestions()" style="margin-left: 10px">查看</button>
+                            <button type="button" class="btn btn-primary pull-right" onclick="next()" style="margin-left: 10px">下一页</button>
+                            <button type="button" class="btn btn-primary pull-right" onclick="before()" style="margin-left: 10px">上一页</button>
+                        </div>
+                    </form>
                 </div>
-                <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
-                <script src="/static/js/bootstrap.min.js"></script>
-                <script type="text/javascript">
-                        function getQuestions(){
-                                var size = parseInt($("#size").val())
-                                var page = parseInt($("#page").val())
-                                $.ajax({
-                                        url: "/view/" + size + "/" + ((page - 1)*size) + "/",
-                                        success: function(data){
-                                                $("#content").html(data);
-                                        }
-                                });
-                        }
-                        function next(){
-                                var page = parseInt($("#page").val());
-                                $("#page").val(page + 1);
-                                getQuestions();
-                        }
-                        function before(){
-                                var page = parseInt($("#page").val());
-                                if (page <= 1) 
-                                        return;
-                                $("#page").val(page + 1);
-                                getQuestions();
-                        }
-                        $(function(){
-                                $("#size").val("5");
-                                $("#page").val("1");
-                                getQuestions();
+                <div class="col-lg-9">
+                    <div id="content" class="row">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script type="text/javascript">
+                function getQuestions(){
+                        var size = parseInt($("#size").val())
+                        var page = parseInt($("#page").val())
+                        var subject = parseInt($("#subject").val())
+                        var type = parseInt($("#type").val())
+                        $.ajax({
+                                url: "/view/" + size + "/" + ((page - 1)*size) + "/" + subject + "/" + type + "/",
+                                success: function(data){
+                                        $("#content").html(data);
+                                }
                         });
-                </script>
-        </body>
+                }
+                function next(){
+                        var page = parseInt($("#page").val());
+                        $("#page").val(page + 1);
+                        getQuestions();
+                }
+                function before(){
+                        var page = parseInt($("#page").val());
+                        if (page <= 1) 
+                                return;
+                        $("#page").val(page - 1);
+                        getQuestions();
+                }
+                $(function(){
+                        $("#size").val("5");
+                        $("#page").val("1");
+                        getQuestions();
+                });
+        </script>
+    </body>
 </html>
