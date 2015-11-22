@@ -8,7 +8,7 @@ from zuoyehezi.items import Image
 
 user = 'root'
 password = ''
-database = 'ZYHZ1'
+database = 'ZYHZ'
 
 class DBHandler(object):
     def __init__(self):

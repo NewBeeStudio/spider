@@ -10,12 +10,16 @@ from bs4 import BeautifulSoup
 import json
 import csv
 
-def addImage(text):
+def addImage(text, desc):
         soup = BeautifulSoup(text)
         imgs = soup.find_all("img")
+        descList = desc.split(">")
+        img_dir = "/static/images"
+        for item in descList:
+            img_dir += "/" + item.strip()
         for img in imgs:
                 if img["src"][0:7] != "http://":
-                        img["src"] = "/static/image/" + img["src"] + ".jpg"
+                        img["src"] = img_dir + "/" + img["src"]
         return str(soup) 
 
 def view(request, limit, offset, subject, qtype):
@@ -33,9 +37,9 @@ def view(request, limit, offset, subject, qtype):
         else:
                 questionList = Question.objects.all().filter(subject=subject).filter(type=qtype)[offset: offset + limit]
         for i in questionList:
-                i.content = addImage(i.content)
-                i.rightanswer = addImage(i.rightanswer)
-                i.answerexplain = addImage(i.answerexplain)
+                i.content = addImage(i.content,i.description)
+                i.rightanswer = addImage(i.rightanswer,i.description)
+                i.answerexplain = addImage(i.answerexplain,i.description)
         return render_to_response('questions.html', locals())
         # text = ""
         # for i in Question.objects.all()[offset: offset + limit]:
@@ -66,21 +70,21 @@ def getImage(request, id):
 
 def parseSubject(num):
         if num == 0:
-                return "英语"
+                return u"英语"
         if num == 1:
-                return "数学"
-        return "其他"         
+                return u"数学"
+        return u"其他"         
         
 def parseType(num):
         if num == 0:
-                return "单选题"
+                return u"单选题"
         if num == 1:
-                return "多选题"       
+                return u"多选题"       
         if num == 2:
-                return "解答题"
+                return u"解答题"
         if num == 5:
-                return "完形填空"
-        return "其他"
+                return u"完形填空"
+        return u"其他"
 
 def excel(request, limit, offset, subject, qtype):
         limit = int(limit)
@@ -108,12 +112,25 @@ def excel(request, limit, offset, subject, qtype):
                         questionList = Question.objects.all().filter(subject=subject).filter(type=qtype) 
         qcsvfile = file('question.csv', 'wb')
         #icsvfile = file('image.csv', 'wb')
-        qwriter = csv.writer(qcsvfile)
+        qcsvfile.write(u'\ufeff'.encode('utf-8')) # BOM (optional...Excel needs it to open UTF-8 file properly)
+        # qwriter = csv.writer(qcsvfile)
         #iwriter = csv.writer(icsvfile)
-        qwriter.writerow(['学科', '题型', 'id', '具体分类', 'HTML内容', 'HTML正确答案', 'HTML解释', '难度', '正确率', '热度', 'A', 'B', 'C', 'D', '来源', '纯文本'])    
-        #iwriter,writerow(['id', 'url'])
-        for i in questionList:
-                qwriter.writerow([parseSubject(i.subject), parseType(i.type), i.id, i.description, i.content, i.rightanswer, i.answerexplain, i.difficulty, i.rightrate, i.hot, i.A, i.B, i.C, i.D, i.source, i.plainText]) 
+        try:
+            headers = [u'学科', u'题型', u'id', u'具体分类', u'HTML内容', u'HTML正确答案', u'HTML解释', u'难度', u'正确率', u'热度', 'A', 'B', 'C', 'D', u'来源', u'纯文本']
+            for i in range(len(headers)):
+                headers[i] = headers[i].encode('utf-8')
+            qwriter = csv.DictWriter(qcsvfile, headers)
+            qwriter.writeheader()
+            # qwriter.writerow(headers)    
+            #iwriter,writerow(['id', 'url'])
+            for i in questionList:
+                row = [parseSubject(i.subject), parseType(i.type), i.id, i.description, i.content, i.rightanswer, i.answerexplain, i.difficulty, i.rightrate, i.hot, i.A, i.B, i.C, i.D, i.source, i.plainText]
+                # for i in range(len(row)):
+                    # row[i] = unicode(row[i]).encode("utf-8")
+                qwriter.writerow( {headers[i]: unicode(row[i]).encode("utf-8")  for i in range(len(row))} )
+        # print i.difficulty
+        except Exception, e:
+            print e
         qcsvfile.close() 
         return HttpResponse(json.dumps({'status': 'success'}))
             

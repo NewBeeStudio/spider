@@ -34,7 +34,7 @@ subjectType = [u"初中英语", u"高中数学"]
 # subjectType = [u"高中英语", u""] # just for test
 
 startIdx =  [1351, 3] # 1351 for junior eng, 3 for senior math 
-lastIdx =   [1442, 205] # 1442 for junior eng, 205 for senior math
+lastIdx =   [1442, 15] # 1442 for junior eng, 205 for senior math
 
 
 
@@ -47,6 +47,7 @@ class ZSpider(Spider):
     name = "ZSpider"
     start_urls = []
     dict_all = {}
+    # allowed_domains = ["knowbox.cn"]
 
     # isntead of __init__, it can pass parameters.
     def start_requests(self):
@@ -157,13 +158,13 @@ class ZSpider(Spider):
             # process: in case of images. same below.
             temp, item["content"] = self.process(i["content"])
             for x, y in temp:
-                yield Request(url = x, callback = self.storeImage,  meta={"id": y})
+                yield Request(url = x, callback = self.storeImage,  meta={"id": y, "desc": response.meta["desc"]})
             temp, item["rightAnswer"] = self.process(i["rightAnswer"])
             for x, y in temp:
-                yield Request(url = x, callback = self.storeImage,  meta={"id": y})
+                yield Request(url = x, callback = self.storeImage,  meta={"id": y, "desc": response.meta["desc"]})
             temp, item["answerExplain"] = self.process(i["answerExplain"])
             for x, y in temp:
-                yield Request(url = x, callback = self.storeImage,  meta={"id": y})
+                yield Request(url = x, callback = self.storeImage,  meta={"id": y, "desc": response.meta["desc"]})
             item["difficulty"] = i["difficulty"]
             item["rightRate"] = i["rightRate"]      # can be -1, if none.
             item["groupInfo"] = i["groupInfo"]      
@@ -188,45 +189,56 @@ class ZSpider(Spider):
         ans = []
         for i in imgs:
             if i["src"][0:7] == "http://":
+                # print i["src"]
                 temp = i["src"]
-                i["src"] = uuid.uuid1()
+                i["src"] = str(uuid.uuid1())+'.'+i["src"][-3:]
+                # print i["src"]
                 ans += [(temp, i["src"])]
         return ans, str(soup)
 
     def storeImage(self, response):
         image = Image()
         img_id = response.meta["id"]
+        desc = response.meta["desc"]
+        descList = desc.split(">")
+        img_dir = "images"
+        for item in descList:
+            img_dir += "/" + item.strip()
+            if not os.path.exists(img_dir):
+                os.makedirs(img_dir)
         image["url"] = img_id
+        # print img_dir
         try:
             self.logger.info('Storing image now...')
-            store_url = "%s/%s.jpg" % (img_dir, img_id)
+            store_url = img_dir + "/" + img_id
+            # print store_url
             f = open(store_url, 'wb')
             f.write(response.body)
             f.close()
             yield image
-        except:
+        except Exception, e:
+            print e
             yield Request(url = response.url, callback = self.storeImage,  meta={"id": img_id})
 
-
     def semanticAnalysis(self, txt, item, c):
-        tmpList = txt.split("A" + c)
+        tmpList = txt.split(u"A" + c)
         if len(tmpList) != 2:
             #Parse Failed
             return False
         tmpText = tmpList[1]
-        tmpList = tmpText.split("B" + c)
+        tmpList = tmpText.split(u"B" + c)
         item['A'] = tmpList[0]
         if len(tmpList) != 2:
             #Parse Failed
             return False
         tmpText = tmpList[1]
-        tmpList = tmpText.split("C" + c)
+        tmpList = tmpText.split(u"C" + c)
         item['B'] = tmpList[0]
         if len(tmpList) != 2:
             #Parse Failed
             return False
         tmpText = tmpList[1]
-        tmpList = tmpText.split("D" + c)
+        tmpList = tmpText.split(u"D" + c)
         item['C'] = tmpList[0]
         if len(tmpList) != 2:
             #Parse Failed
@@ -257,11 +269,11 @@ class ZSpider(Spider):
                         item['D'] = ''
             else:
                 txt = re.sub(r"(?:<span.*?>|</span>|<p>|</p>|</body>|</html>|\n|\t)", '', soup.text)
-                if self.semanticAnalysis(txt, item, '.'):
+                if self.semanticAnalysis(txt, item, u'.'):
                     return
-                elif self.semanticAnalysis(txt, item, ')'):
+                elif self.semanticAnalysis(txt, item, u')'):
                     return
-                elif self.semanticAnalysis(txt, item, '．'):
+                elif self.semanticAnalysis(txt, item, u'．'):
                     return
                 
 
