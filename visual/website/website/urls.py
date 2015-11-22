@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     # url(r'^images/images/([\w-]+)/$', 'viewQuestion.views.getImage', name='image'),
     url(r'^main/$', 'viewQuestion.views.main', name="main"),
     url(r'^deleteQuestion/(\d+)/$', 'viewQuestion.views.deleteQuestion', name="delete"),
+    url(r'^excel/(\d+|-1)/(\d+|-1)/(\d|-1)/(\d|-1)/$', 'viewQuestion.views.excel', name="excel"),
     #url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':settings.STATIC_ROOT}),
     url(r'^admin/', include(admin.site.urls)),
 )
